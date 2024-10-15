@@ -31,3 +31,8 @@ export const Form = styled(Box, {
     gap: "$2q",
   },
 });
+
+export const FormError = styled(Text, {
+  marginTop: "$1",
+  color: "#f75a68",
+});
