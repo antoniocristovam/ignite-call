@@ -21,6 +21,7 @@ import { z } from "zod";
 import { getWeekDays } from "@/src/utils/get-week-days";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { convertTimeStringToMinutes } from "@/src/utils/convert-time-string-to-minutes";
+import { api } from "@/src/lib/axios";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const timeIntervalsFormSchema = z.object({
@@ -36,7 +37,7 @@ const timeIntervalsFormSchema = z.object({
     .length(7)
     .transform((intervals) => intervals.filter((interval) => interval.enabled))
     .refine((intervals) => intervals.length > 0, {
-      message: "Você precisa selecionar pelo menos um dia da semana.",
+      message: "Você precisa selecionar pelo menos um dia da semana",
     })
     .transform((intervals) => {
       return intervals.map((interval) => {
@@ -50,13 +51,13 @@ const timeIntervalsFormSchema = z.object({
     .refine(
       (intervals) => {
         return intervals.every(
-          (intervals) =>
-            intervals.endTimeInMinutes - 60 >= intervals.startTimeInMinutes
+          (interval) =>
+            interval.endTimeInMinutes - 60 >= interval.startTimeInMinutes
         );
       },
       {
         message:
-          "O intervalo de horário precisa ser de pelo menos 1 hora do início..",
+          "O horário de término deve ser pelo menos 1h distante do início.",
       }
     ),
 });
@@ -97,8 +98,9 @@ export default function TimeIntervals() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function handleSetTimeIntervals(data: any) {
-    const formData = data as TimeIntervalsFormOutput;
-    console.log(formData);
+    const { intervals } = data as TimeIntervalsFormOutput;
+
+    await api.post("/users/time-intervals", { intervals });
   }
 
   return (
